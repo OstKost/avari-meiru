@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Avari Mieru",
+  "version": "0.1.0",
+  "identifier": "app.mieru.desktop",
+  "build": {
+    "frontendDist": "../ui/dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "sh -c 'if [ -f ui/package.json ]; then exec pnpm --dir ui dev; elif [ -f package.json ]; then exec pnpm dev; elif [ -f ../ui/package.json ]; then exec pnpm --dir ../ui dev; fi'",
+    "beforeBuildCommand": "sh -c 'if [ -f ui/package.json ]; then exec pnpm --dir ui build; elif [ -f package.json ]; then exec pnpm build; elif [ -f ../ui/package.json ]; then exec pnpm --dir ../ui build; fi'"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Avari Mieru",
+        "width": 420,
+        "height": 720,
+        "minWidth": 360,
+        "minHeight": 500,
+        "resizable": true,
+        "visible": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "externalBin": ["../../core/dist/sing-box"],
+    "resources": [
+      "../../core/dist/LICENSE",
+      "../../core/dist/REVISION",
+      "../../core/dist/licenses/*"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mieru.example/schemas/profile.schema.json",
+  "title": "Mieru Client profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["server", "server_port", "transport", "username", "password"],
+  "properties": {
+    "server": {"type":"string", "minLength":1, "description":"IP address or hostname"},
+    "server_port": {"type":"integer", "minimum":1, "maximum":65535},
+    "transport": {"type":"string", "enum":["TCP","UDP"]},
+    "username": {"type":"string", "minLength":1},
+    "password": {"type":"string", "minLength":1},
+    "traffic_pattern": {"type":"string", "minLength":1, "contentEncoding":"base64"}
+  }
+}

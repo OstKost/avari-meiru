@@ -1,0 +1,17 @@
+[package]
+name = "mieru-helper"
+version = "0.1.0"
+description = "Headless root helper for the Mieru Linux client"
+edition = "2021"
+license = "GPL-3.0-or-later"
+rust-version = "1.77"
+publish = false
+
+[[bin]]
+name = "mieru-helper"
+path = "src/main.rs"
+
+[dependencies]
+libc = "0.2"
+mieru-shared = { path = "../mieru-shared" }
+signal-hook = "0.3"

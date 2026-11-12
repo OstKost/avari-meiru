@@ -1,0 +1,28 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 12080
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "mieru",
+      "tag": "mieru-out",
+      "server": "203.0.113.10",
+      "server_port": 8964,
+      "transport": "TCP",
+      "username": "baozi",
+      "password": "manlianpenfen"
+    }
+  ],
+  "route": {
+    "final": "mieru-out",
+    "auto_detect_interface": true
+  }
+}

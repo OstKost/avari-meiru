@@ -1,0 +1,8 @@
+{
+  "server": "203.0.113.10",
+  "server_port": 8964,
+  "transport": "TCP",
+  "username": "example-user",
+  "password": "example-password",
+  "traffic_pattern": "GgQIARAK"
+}

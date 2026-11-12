@@ -1,0 +1,17 @@
+pkgbase=mieru
+pkgname=mieru
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Mieru desktop VPN client'
+arch=('x86_64')
+options=('!debug' '!strip')
+license=('GPL-3.0-or-later')
+depends=('glibc' 'gtk3' 'webkit2gtk-4.1' 'libayatana-appindicator' 'openssl' 'polkit')
+source=('out.tar.gz')
+sha256sums=('REPLACE_HASH')
+package() {
+  install -Dm755 "$srcdir/out/usr/bin/mieru" "$pkgdir/usr/bin/mieru"
+  install -Dm755 "$srcdir/out/usr/lib/mieru/mieru-helper" "$pkgdir/usr/lib/mieru/mieru-helper"
+  install -Dm755 "$srcdir/out/usr/lib/mieru/sing-box" "$pkgdir/usr/lib/mieru/sing-box"
+  cp -a "$srcdir/out/usr/share" "$pkgdir/usr/"
+}

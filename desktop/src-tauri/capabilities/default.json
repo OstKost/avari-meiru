@@ -1,0 +1,15 @@
+{
+  "identifier": "main",
+  "description": "Main window. Core window/event APIs only; the shell and fs plugins are not enabled.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "allow-profile-get",
+    "allow-profile-set",
+    "allow-vpn-connect",
+    "allow-vpn-disconnect",
+    "allow-vpn-status-get",
+    "allow-vpn-log-get",
+    "allow-server-health-check"
+  ]
+}

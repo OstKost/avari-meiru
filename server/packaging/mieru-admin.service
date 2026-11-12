@@ -1,0 +1,16 @@
+[Unit]
+Description=Mieru Admin Management Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/mieru-admin serve
+Restart=always
+RestartSec=5
+User=root
+LimitNOFILE=65535
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

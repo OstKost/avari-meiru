@@ -1,0 +1,24 @@
+# Build outputs and temporary test binaries
+/build_test/
+/mieru-admin
+/dist/mieru-admin
+/dist/mita_3.38.0_amd64.deb
+/dist/mieru-admin-linux-amd64.tar.gz
+
+# Credentials, tokens, and real/test profiles
+token
+*.token
+*token*
+*.json.bak.*
+*.pb
+*.pb.tmp.*
+.candidate_*.json
+.cand_*.json
+*.tmp
+*profile*.json
+vps-test-profile.json
+client-profile.json
+
+# Caches and test logs
+.cache/
+*.log

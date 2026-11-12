@@ -1,0 +1,13 @@
+[package]
+name = "mieru-shared"
+version = "0.1.0"
+description = "Shared Mieru profile and core configuration"
+edition = "2021"
+license = "GPL-3.0-or-later"
+rust-version = "1.77"
+publish = false
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

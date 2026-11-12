@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mieru</string>
+    <string name="vpn_channel_name">Mieru VPN Status</string>
+    <string name="vpn_channel_desc">Shows ongoing VPN connection status</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_connecting">Connecting…</string>
+    <string name="action_disconnecting">Disconnecting…</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="status_connecting">Connecting</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnecting">Disconnecting</string>
+    <string name="status_error">Error</string>
+    <string name="label_server">Server (Host or IP)</string>
+    <string name="label_port">Port</string>
+    <string name="label_transport">Transport</string>
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="label_traffic_pattern">Traffic Pattern (Base64)</string>
+    <string name="label_json_import">Import JSON</string>
+    <string name="label_json_export">Export JSON</string>
+    <string name="label_logs">Activity Logs</string>
+    <string name="label_clear_logs">Clear Logs</string>
+</resources>

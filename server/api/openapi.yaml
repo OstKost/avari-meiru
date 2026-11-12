@@ -1,0 +1,702 @@
+openapi: 3.0.3
+info:
+  title: Mieru Admin Management API
+  description: >
+    API-first management daemon for Mieru (mita) proxy server.
+    Listens only on 127.0.0.1:9081. Authenticated via Bearer token stored in /etc/mieru-admin/token (0600).
+    Business rules and lifecycle management for Ubuntu 24.04 and Debian 13 x86_64.
+  version: 1.0.0
+
+servers:
+  - url: http://127.0.0.1:9081/v1
+    description: Localhost root daemon API
+
+security:
+  - BearerAuth: []
+
+paths:
+  /status:
+    get:
+      summary: Get system, service, and mita proxy status
+      operationId: getStatus
+      responses:
+        '200':
+          description: Status information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /installation:
+    post:
+      summary: Install official pinned mita debian package
+      operationId: installMita
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstallationRequest'
+      responses:
+        '200':
+          description: Package installed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /config:
+    get:
+      summary: Get active server configuration (sanitized without passwords or hashes)
+      operationId: getConfig
+      responses:
+        '200':
+          description: Current sanitized server configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Apply configuration with optimistic locking and rollback
+      operationId: applyConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyConfigRequest'
+      responses:
+        '200':
+          description: Configuration applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplyConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Conflict due to concurrent configuration modification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /config/preview:
+    post:
+      summary: Preview configuration change and validate without applying
+      operationId: previewConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewConfigRequest'
+      responses:
+        '200':
+          description: Preview results with diff and validation status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreviewConfigResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /users:
+    get:
+      summary: List registered users (without passwords or hashes)
+      operationId: listUsers
+      responses:
+        '200':
+          description: List of registered users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Add a new user with password hashing
+      operationId: addUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddUserRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMutationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /users/{name}:
+    patch:
+      summary: Reset user password
+      operationId: resetUserPassword
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMutationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMutationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /service:
+    post:
+      summary: Control mita proxy service (start, stop, restart)
+      operationId: controlService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceControlRequest'
+      responses:
+        '200':
+          description: Service action result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceControlResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /logs:
+    get:
+      summary: Get recent sanitized logs (no credentials or secrets)
+      operationId: getLogs
+      parameters:
+        - name: lines
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+      responses:
+        '200':
+          description: Sanitized log lines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /profiles/export:
+    post:
+      summary: Export client profile conforming to configs/profile.schema.json
+      description: Validates provided password against server-side hashed password using upstream cipher algorithm before exporting.
+      operationId: exportProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportProfileRequest'
+      responses:
+        '200':
+          description: Client profile ready for sing-box / desktop client
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Password does not match stored hash
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or payload
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication failed or token missing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: Internal server error (sanitized, no raw stderr)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: INVALID_ARGUMENT
+        message:
+          type: string
+          example: Invalid port specified
+        details:
+          type: string
+          example: Port must be between 1 and 65535
+
+    StatusResponse:
+      type: object
+      required:
+        - os
+        - mita
+        - mieru_admin
+      properties:
+        os:
+          type: object
+          required:
+            - name
+            - version
+            - arch
+            - systemd
+          properties:
+            name:
+              type: string
+              example: Ubuntu
+            version:
+              type: string
+              example: 24.04 LTS
+            arch:
+              type: string
+              example: x86_64
+            systemd:
+              type: boolean
+              example: true
+            public_ip:
+              type: string
+              example: 31.58.213.192
+        mita:
+          type: object
+          required:
+            - installed
+            - systemd_active
+            - daemon_running
+            - proxy_running
+          properties:
+            installed:
+              type: boolean
+              example: true
+            version:
+              type: string
+              example: 3.38.0
+            expected_version:
+              type: string
+              example: 3.38.0
+            systemd_active:
+              type: boolean
+              example: true
+            daemon_running:
+              type: boolean
+              example: true
+            proxy_running:
+              type: boolean
+              example: true
+            port:
+              type: integer
+              example: 28443
+            users_count:
+              type: integer
+              example: 1
+        mieru_admin:
+          type: object
+          required:
+            - version
+            - uptime_seconds
+          properties:
+            version:
+              type: string
+              example: 1.0.0
+            commit:
+              type: string
+              example: dev
+            uptime_seconds:
+              type: integer
+              example: 120
+
+    InstallationRequest:
+      type: object
+      properties:
+        deb_path:
+          type: string
+          description: Optional local path to pre-downloaded deb package
+
+    InstallationResponse:
+      type: object
+      required:
+        - success
+        - version
+        - message
+      properties:
+        success:
+          type: boolean
+        version:
+          type: string
+        message:
+          type: string
+
+    PortBinding:
+      type: object
+      properties:
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        protocol:
+          type: string
+          enum: [TCP, UDP]
+        portRange:
+          type: string
+
+    SanitizedUser:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        allowPrivateIP:
+          type: boolean
+        allowLoopbackIP:
+          type: boolean
+        quotas:
+          type: array
+          items:
+            type: object
+
+    ConfigResponse:
+      type: object
+      required:
+        - revision
+        - portBindings
+        - users
+      properties:
+        revision:
+          type: string
+          description: SHA256 revision hash of current active configuration
+        listenIPAddress:
+          type: string
+        portBindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortBinding'
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/SanitizedUser'
+        loggingLevel:
+          type: string
+        mtu:
+          type: integer
+        dns:
+          type: object
+        trafficPattern:
+          type: object
+        advancedSettings:
+          type: object
+        raw_json:
+          type: string
+          description: Full formatted JSON configuration with secret fields masked
+
+    PreviewConfigRequest:
+      type: object
+      required:
+        - patch
+      properties:
+        patch:
+          type: object
+          description: Partial or complete configuration updates
+
+    PreviewConfigResponse:
+      type: object
+      required:
+        - base_revision
+        - candidate_revision
+        - valid
+        - diff
+      properties:
+        base_revision:
+          type: string
+        candidate_revision:
+          type: string
+        valid:
+          type: boolean
+        validation_error:
+          type: string
+        diff:
+          type: string
+          description: Unified diff representation of changes
+        preview_config:
+          type: object
+
+    ApplyConfigRequest:
+      type: object
+      required:
+        - base_revision
+        - config
+      properties:
+        base_revision:
+          type: string
+        config:
+          type: object
+
+    ApplyConfigResponse:
+      type: object
+      required:
+        - success
+        - revision
+        - message
+      properties:
+        success:
+          type: boolean
+        revision:
+          type: string
+        message:
+          type: string
+
+    UserListResponse:
+      type: object
+      required:
+        - users
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/SanitizedUser'
+
+    AddUserRequest:
+      type: object
+      required:
+        - name
+        - password
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+        allowPrivateIP:
+          type: boolean
+        allowLoopbackIP:
+          type: boolean
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - password
+      properties:
+        password:
+          type: string
+
+    UserMutationResponse:
+      type: object
+      required:
+        - success
+        - name
+        - revision
+      properties:
+        success:
+          type: boolean
+        name:
+          type: string
+        revision:
+          type: string
+
+    ServiceControlRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [start, stop, restart]
+
+    ServiceControlResponse:
+      type: object
+      required:
+        - success
+        - action
+        - systemd_active
+        - mita_running
+        - message
+      properties:
+        success:
+          type: boolean
+        action:
+          type: string
+        systemd_active:
+          type: boolean
+        mita_running:
+          type: boolean
+        message:
+          type: string
+
+    LogsResponse:
+      type: object
+      required:
+        - lines
+      properties:
+        lines:
+          type: array
+          items:
+            type: string
+
+    ExportProfileRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        server_host:
+          type: string
+          description: Optional override for external server IP/hostname
+        server_port:
+          type: integer
+
+    ClientProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - server
+        - server_port
+        - transport
+        - username
+        - password
+      properties:
+        server:
+          type: string
+          minLength: 1
+          description: IP address or hostname
+        server_port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+        transport:
+          type: string
+          enum: [TCP, UDP]
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+        traffic_pattern:
+          type: string
+          minLength: 1

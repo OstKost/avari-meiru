@@ -1,0 +1,30 @@
+.DS_Store
+*.log
+
+# Dependencies and build outputs
+node_modules/
+desktop/ui/dist/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/
+android/app/build/
+android/build/
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/app/libs/*.aar
+core/.cache/
+core/dist/
+packaging/linux/.cache/
+packaging/linux/dist/
+server/dist/
+release-artifacts/
+
+# Local tools & archives
+busybox
+curl
+static-curl.txz
+
+# IDE & agent state
+.agents/
+.gemini/
+

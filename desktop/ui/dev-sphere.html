@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avari Mieru — Dev Sphere Visual QA</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #0f172a;
+      color: #f1f5f9;
+      box-sizing: border-box;
+    }
+    body.light {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      font-weight: 700;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #1e293b;
+      color: #94a3b8;
+    }
+    .light .badge {
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .light .btn {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+    }
+    .btn:hover {
+      background: #334155;
+    }
+    .light .btn:hover {
+      background: #f8fafc;
+    }
+    .btn.active {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+    .light .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .canvas-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 12px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .ref-img {
+      width: 220px;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin: 12px 0;
+      background: #000;
+    }
+    .app-frame-preview {
+      border: 2px dashed #3b82f6;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 0 auto;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .fps-counter {
+      font-family: monospace;
+      font-size: 12px;
+      color: #10b981;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 12px;">
+    <div>
+      <h1 style="font-size: 20px; margin-bottom: 4px;">Avari Mieru — Procedural 3D Canvas Sphere QA</h1>
+      <span class="badge">Retina Canvas 2D</span>
+      <span class="badge">Fibonacci Point Cloud</span>
+      <span class="badge">Glow Sprites</span>
+      <span class="badge">Zero external deps</span>
+    </div>
+
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn" id="btn-toggle-theme">Переключить тему (Dark/Light)</button>
+      <button class="btn" id="btn-toggle-motion">Reduced Motion: OFF</button>
+      <div id="fps-display" class="fps-counter">Замер...</div>
+    </div>
+  </header>
+
+  <!-- Control Toolbar -->
+  <section style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+    <span style="font-size: 13px; font-weight: 600; margin-right: 8px;">Состояние сферы:</span>
+    <button class="btn active" data-state="cold_start">Cold Start (Animacion.gif)</button>
+    <button class="btn" data-state="ready">Ready / Amber (_ (1).gif)</button>
+    <button class="btn" data-state="connected">Connected / Emerald (_.gif)</button>
+    <button class="btn" data-state="connecting">Connecting (Focusing)</button>
+    <button class="btn" data-state="disconnecting">Disconnecting</button>
+    <button class="btn" data-state="unconfigured">Unconfigured (Diffuse)</button>
+    <button class="btn" data-state="error">Error (Ruby Pulse)</button>
+  </section>
+
+  <!-- Side-by-Side Comparison Grid -->
+  <div class="grid-container">
+    
+    <!-- Procedural Canvas Sphere Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <h3 style="font-size: 15px; margin: 0;">Живая Procedural Canvas 2D Сфера</h3>
+        <span id="active-state-badge" class="badge" style="background: #2563eb; color: #fff;">cold_start</span>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="qa-sphere-canvas" width="220" height="220"></canvas>
+      </div>
+
+      <div style="font-size: 12px; color: #94a3b8; text-align: center; max-width: 260px;">
+        <span id="state-description">Анимация сборки при запуске приложения (~1.4s)</span>
+      </div>
+    </div>
+
+    <!-- User Reference GIF 1: Connected (_.gif) -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <h3 style="font-size: 15px; margin: 0;">Референс: Connected (_.gif)</h3>
+        <span class="badge">500x500 70f</span>
+      </div>
+
+      <img src="http://127.0.0.1:9099/_.gif" class="ref-img" alt="_.gif connected reference" />
+
+      <div style="font-size: 12px; color: #94a3b8; text-align: center;">
+        Плотная геометрия, изумрудные орбитальные кольца и активные узлы соединения.
+      </div>
+    </div>
+
+    <!-- User Reference GIF 2: Ready / Disconnected (_ (1).gif) -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <h3 style="font-size: 15px; margin: 0;">Референс: Ready (_ (1).gif)</h3>
+        <span class="badge">500x500 144f</span>
+      </div>
+
+      <img src="http://127.0.0.1:9099/_%20(1).gif" class="ref-img" alt="_ (1).gif ready reference" />
+
+      <div style="font-size: 12px; color: #94a3b8; text-align: center;">
+        Тёплая янтарная сфера с плавным вращением частиц и мягким ореолом.
+      </div>
+    </div>
+
+    <!-- User Reference GIF 3: Cold Start (Animacion.gif) -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <h3 style="font-size: 15px; margin: 0;">Референс: Start / Filaments (Animacion.gif)</h3>
+        <span class="badge">800x600 302f</span>
+      </div>
+
+      <img src="http://127.0.0.1:9099/Animacion.gif" class="ref-img" alt="Animacion.gif filament reference" />
+
+      <div style="font-size: 12px; color: #94a3b8; text-align: center;">
+        Циановое ядро с внутренними волнообразными нитями потока.
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { MieruSphere } from './src/sphere.ts';
+
+    const canvas = document.getElementById('qa-sphere-canvas');
+    let isDark = true;
+    let isReduced = false;
+
+    const sphere = new MieruSphere(canvas, {
+      isDarkTheme: isDark,
+      initialState: 'cold_start',
+    });
+
+    const stateDescs = {
+      cold_start: 'Анимация сборки при запуске приложения (~1.4s, Animacion.gif)',
+      unconfigured: 'Нейтральная дымная оболочка (профиль не настроен)',
+      ready: 'Тёплая янтарная дымная оболочка: перетекающие струи, вихревые нити и полость внутри (_ (1).gif)',
+      connecting: 'Морфология: дым собирается в геометрическую сетку (сине-индиго)',
+      connected: 'Чёткая изумрудная сложная сфера с треугольной сеткой (_.gif)',
+      error: 'Красная дымная оболочка с мягким импульсом',
+      disconnecting: 'Морфология: сетка распускается обратно в дым',
+    };
+
+    const buttons = document.querySelectorAll('[data-state]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const st = btn.getAttribute('data-state');
+        sphere.setState(st);
+        document.getElementById('active-state-badge').textContent = st;
+        document.getElementById('state-description').textContent = stateDescs[st] || '';
+      });
+    });
+
+    document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+      isDark = !isDark;
+      document.body.classList.toggle('light', !isDark);
+      sphere.setDark(isDark);
+    });
+
+    document.getElementById('btn-toggle-motion').addEventListener('click', (e) => {
+      isReduced = !isReduced;
+      e.target.textContent = `Reduced Motion: ${isReduced ? 'ON' : 'OFF'}`;
+      sphere.setReducedMotion(isReduced);
+    });
+
+    // Real measured performance instrumentation
+    const fpsDisplay = document.getElementById('fps-display');
+    window.setInterval(() => {
+      const stats = sphere.getPerformanceStats();
+      if (stats.isReducedMotion) {
+        fpsDisplay.textContent = 'Reduced Motion (статичный кадр, 0 FPS)';
+      } else if (stats.isPaused) {
+        fpsDisplay.textContent = 'Приостановлено (фоновая вкладка, 0 FPS)';
+      } else if (stats.sampleCount === 0) {
+        fpsDisplay.textContent = 'Замер кадров...';
+      } else {
+        fpsDisplay.textContent = `${stats.renderedFps} FPS (p50: ${stats.p50Ms} ms, p95: ${stats.p95Ms} ms, ср: ${stats.avgMs} ms)`;
+      }
+    }, 500);
+  </script>
+</body>
+</html>
