@@ -2,7 +2,11 @@
 set -euxo pipefail
 version="$1" output="$2"
 # This runs only inside the disposable Arch container; host pacman config is untouched.
-echo "Server = https://geo.mirror.pkgbuild.com/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+cat > /etc/pacman.d/mirrorlist <<'MIRRORS'
+Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
+Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch
+Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch
+MIRRORS
 sed -i "s/^#ParallelDownloads = 5/ParallelDownloads = 10/" /etc/pacman.conf
 pacman --disable-sandbox-syscalls -Sy --noconfirm --needed base-devel zstd gtk3 webkit2gtk-4.1 libayatana-appindicator openssl polkit
 useradd -m builder

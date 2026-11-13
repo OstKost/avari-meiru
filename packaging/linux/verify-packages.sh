@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PKG="$ROOT/packaging/linux"
 OUT="$PKG/dist"
 BUILD_OUT="$OUT/build/out"
-VERSION="${1:-${VERSION:-0.1.0}}"
+VERSION="${1:-${VERSION:-0.1.1}}"
 
 echo "=== Verifying packages in $OUT against $BUILD_OUT (version: $VERSION) ==="
 

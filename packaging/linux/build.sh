@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PKG="$ROOT/packaging/linux"
 OUT="$PKG/dist"
 STAGE="$PKG/.cache/context"
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-0.1.1}"
 
 BUILD_ONLY="${BUILD_ONLY:-0}"
 PACK_ONLY="${PACK_ONLY:-0}"

@@ -1,6 +1,6 @@
 [package]
 name = "mieru-desktop"
-version = "0.1.0"
+version = "0.1.1"
 description = "Mieru desktop client"
 edition = "2021"
 license = "GPL-3.0-or-later"

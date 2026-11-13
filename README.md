@@ -83,7 +83,7 @@ Linux-ядро: `core/dist/sing-box-x86_64-unknown-linux-gnu`, сборка `./c
 
 Linux-пакеты находятся в `packaging/linux/dist/`; инструкции сборки: [packaging/linux/README.md](packaging/linux/README.md). Нативная приёмка выполнена в реальной виртуальной машине Ubuntu 24.04 amd64 (X11/Xfce + logind + polkit-gnome) с живым трафиком через VPS `31.58.213.192:28443`: отмена диалога авторизации (код 126), подтверждение пароля и подъём `tun0`, HTTPS HTTP/2 200 OK к `example.com`, внешний IP strictly равен `31.58.213.192`, DNS hijack через ядро, сворачивание/показ окна через Ayatana D-Bus меню трея, отключение, повторное подключение (reconnect) и аварийный демонтаж при SIGTERM GUI без утечек процессов. Полный протокол приёмки: [packaging/linux/ACCEPTANCE.md](packaging/linux/ACCEPTANCE.md). Предварительные контейнерные проверки: [docs/LINUX_SMOKE.md](docs/LINUX_SMOKE.md).
 
-Установка Ubuntu/Debian из каталога пакетов: `sudo apt install ./mieru_0.1.0_amd64_ubuntu.deb` либо `sudo apt install ./mieru_0.1.0_amd64_debian.deb`. Для Arch: `sudo pacman -U ./mieru-0.1.0-1-x86_64.pkg.tar.zst`. Затем запустить `mieru` обычным пользователем или через меню приложений; права администратора запрашивает только VPN helper.
+Установка Ubuntu/Debian из каталога пакетов: `sudo apt install ./mieru_0.1.1_amd64_ubuntu.deb` либо `sudo apt install ./mieru_0.1.1_amd64_debian.deb`. Для Arch: `sudo pacman -U ./mieru-0.1.1-1-x86_64.pkg.tar.zst`. Затем запустить `mieru` обычным пользователем или через меню приложений; права администратора запрашивает только VPN helper.
 
 Сетевые результаты получены 11 ноября 2026 года до отключения временного VPS в 23:25 МСК; дальнейшая доступность тестового сервера не предполагается. Реальные credentials в документацию и исходники не включены.
 
